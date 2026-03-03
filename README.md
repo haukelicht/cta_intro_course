@@ -13,11 +13,11 @@ Participants must **complete the computer setup** described below before the cou
 Participants must have running installations of the **_R_** programming languages and the **_RStudio_** integrated development environment (IDE) at the beginning of the course.
 
 - Please follow the instructions at https://posit.co/download/rstudio-desktop to install R and RStudio.
-- Verify that you have at least R 4.2.0 by running the following line in R(studio):
+- Verify that you have at least R 4.5.0 by running the following line in R(studio):
   ```R
   R.version[["version.string"]]
   ```
-- Verify that you have at least RStudio version 2023.12 by running the following line in R(studio):
+- Verify that you have at least RStudio a version from 2025 or newer by running the following line in R(studio):
   ```R
   rstudioapi::versionInfo()$version
   ```
@@ -26,7 +26,6 @@ Participants must have running installations of the **_R_** programming language
 Please contact the instructor (hauke.licht@uibk.ac.at) should you encounter issues or errors during setup.
 
 ### 2. Clone this repository from Github to your local computer
-
 
 | Step | Description | Screenshot  |
 | ----:|:----------- |:--:|
@@ -43,9 +42,4 @@ Please contact the instructor (hauke.licht@uibk.ac.at) should you encounter issu
 3. Run the R script by clicking "Run" or pressing ⌘ + ⏎ (macOS) or Ctrl+Enter (Windows)
 
 **_Note:_** Installing all the packages that we will use throughout the course may take a while, depending on your internet connection and computer speed. Please be patient.
-
-
-
-
-
 

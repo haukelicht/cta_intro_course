@@ -7,7 +7,5 @@
 *.Rproj
 .Renviron
 
-README.html
-
 get_pkg_versions.R
 models/*.zip
