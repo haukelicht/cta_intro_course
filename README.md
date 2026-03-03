@@ -27,7 +27,7 @@ Please contact the instructor (hauke.licht@uibk.ac.at) should you encounter issu
 
 ### 2. Clone this repository from Github to your local computer
 
-<video src="assets/setup/how-to-clone.mp4" controls width="100%"></video>
+<video src="https://raw.githubusercontent.com/haukelicht/cta_intro_course/main/assets/setup/how-to-clone.mp4" controls width="100%"></video>
 
 | Step | Description | Screenshot  |
 | ----:|:----------- |:--:|
