@@ -27,6 +27,8 @@ Please contact the instructor (hauke.licht@uibk.ac.at) should you encounter issu
 
 ### 2. Clone this repository from Github to your local computer
 
+![](assets/setup/how-to-clone.mp4)
+
 | Step | Description | Screenshot  |
 | ----:|:----------- |:--:|
 | 1. | Open the RStudio App on your computer | |
