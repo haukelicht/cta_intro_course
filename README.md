@@ -27,7 +27,7 @@ Please contact the instructor (hauke.licht@uibk.ac.at) should you encounter issu
 
 ### 2. Clone this repository from Github to your local computer
 
-![](assets/setup/how-to-clone.mp4)
+<video src="assets/setup/how-to-clone.mp4" controls width="100%"></video>
 
 | Step | Description | Screenshot  |
 | ----:|:----------- |:--:|
