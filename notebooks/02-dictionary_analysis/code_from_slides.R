@@ -7,18 +7,96 @@
 # +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~ #
 
 # setup ----
+
 library(quanteda)
-library(lexicon)
+library(lexicon) # TODO: install if needed `renv::install("lexicon")`
 library(quanteda.corpora)
 library(quanteda.sentiment)
 library(dplyr)
 library(ggplot2)
 
 
-
-# create DFM ----
-
 data("data_corpus_ukmanifestos", package = "quanteda.corpora")
+
+# pre-processing ----
+
+# create tokens from the corpus
+toks <- tokens(data_corpus_ukmanifestos)
+
+# print tokens for first three documents
+print(toks[1])
+
+# create a document-feature matrix from the tokens
+dtm <- dfm(toks)
+
+# print(dtm)
+
+print(dtm, max_ndoc=3, max_nfeat=4)
+
+cat("Number of documents in the DFM: ", ndoc(dtm), "\n")
+# NOTE: = number of rows of `dtm`
+
+cat("Number of features in the DFM: ", nfeat(dtm), "\n")
+# NOTE: = number of columns of `dtm`
+
+# compute sparsity of the DFM
+spar <- sparsity(dtm)
+spar
+
+word_freqs <- sort(table(unlist(toks)), decreasing = TRUE)
+pdat <- as.data.frame.table(word_freqs)
+pdat$rank <- 1:nrow(pdat)
+ggplot(pdat, aes(x = rank, y = Freq)) +
+  geom_line() +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Rank (log scale)", y = "Frequency (log scale)")
+
+spar_upper  <- sparsity(dfm(toks, tolower=FALSE))
+spar_default <- sparsity(dfm(toks, tolower=TRUE))
+spar_upper; spar_default
+
+spar_stemmed <- sparsity(dfm_wordstem(dtm))
+spar_stemmed; spar_default
+
+tokens_example <- tokens(c("running", "better", "dogs", "is"))
+tokens_replace(
+  tokens_example, 
+  pattern = lexicon::hash_lemmas$token, 
+  replacement = lexicon::hash_lemmas$lemma
+)
+
+dtm_trimmed <- dfm_trim(
+  dtm, 
+  # discard terms that ooccur < 5 times
+  min_termfreq = 5,
+  # discard terms that occur in >80% of docs
+  max_docfreq = 0.8, docfreq_type = "prop"
+)
+
+spar_trimmed <- sparsity(dtm_trimmed)
+spar_default; spar_trimmed
+
+# corp <- data_corpus_ukmanifestos
+# dtm_w_punct  <- dfm(tokens(corp, remove_punct=FALSE))
+# dtm_wo_punct <- dfm(tokens(corp, remove_punct=TRUE))
+# sparsity(dtm_w_punct)
+# sparsity(dtm_wo_punct)
+
+corp <- data_corpus_ukmanifestos
+spar_with_punct    <- sparsity(dfm(tokens(corp, remove_punct=FALSE)))
+spar_without_punct <- sparsity(dfm(tokens(corp, remove_punct=TRUE)))
+spar_with_punct; spar_without_punct
+
+dtm_no_sws <- dfm_remove(dtm, pattern = stopwords("en"))
+spar_no_sws <- sparsity(dtm_no_sws)
+spar_default; spar_no_sws
+
+
+# dictionary analysis ----
+
+## create DFM ----
+
 
 dtm <- data_corpus_ukmanifestos |> 
   tokens(remove_punct=TRUE, remove_symbols=TRUE, remove_numbers=TRUE) |> 
@@ -31,7 +109,7 @@ dtm <- data_corpus_ukmanifestos |>
   ) |> 
   dfm()
 
-# apply dictionary -----
+## apply dictionary -----
 
 data("data_dictionary_LSD2015", package="quanteda.sentiment")
 
