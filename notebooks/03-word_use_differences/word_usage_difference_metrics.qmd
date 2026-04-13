@@ -1,0 +1,387 @@
+---
+title: "Discovering word usage differences"
+subtitle: 'VU 402150 "Introduction to Computational Text Analysis with R"'
+author: Hauke Licht
+institute: University of Innsbruck
+date: 2026-04-14
+toc: true
+toc-depth: 2
+toc-location: right
+toc-expand: true
+number-sections: true
+number-depth: 1
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  fig-height: 2.8
+  fig-width: 4.5
+code-annotations: select
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    anchor-sections: true
+    smooth-scroll: true
+---
+
+```{r setup}
+#| echo: false
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+options(scipen = 1, digits = 4) #set to two decimal 
+```
+
+
+::: {.callout-note title="a simple question"}
+
+how do groups of texts differ in their language use
+
+:::
+
+- document-term count matrices provide insights into _lexical_ differences $\Rightarrow$ differences in word usage **frequencies**
+- word use difference statistics gives insights into **most "distinctive" terms**
+
+::: {.callout-note title="Monroe et al."}
+
+Monroe et al. ([2017](https://doi.org/10.1093/pan/mpn018))
+
+- discuss different commonly applied statistics 
+- propose a new, statistically more sound one
+
+:::
+
+
+
+::: {.callout-tip title="Running example"}
+
+Differences between word usage of Labour and Convervative parties in their election manifestos
+
+:::
+
+## Setup
+
+### Load required libraries
+
+```{r libraries}
+library(readr)
+library(quanteda)
+library(quanteda.textmodels)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+#| echo: false 
+library(ggplot2)
+set_theme(
+  theme_minimal() + 
+    theme(
+      theme(
+        panel.background = element_rect(fill = "transparent", color = NA_character_),
+        # panel.grid.major = element_blank(), # get rid of major grid
+        # panel.grid.minor = element_blank(), # get rid of minor grid
+        plot.background = element_rect(fill = "transparent", color = NA_character_),
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent"),
+        legend.key = element_rect(fill = "transparent")
+    )
+  )
+)
+```
+
+
+### Load and prepare corpus
+
+```{r}
+data(
+	"data_corpus_ukmanifestos", 
+	package = "quanteda.corpora"
+)
+toks <- tokens(
+	data_corpus_ukmanifestos, 
+	remove_punct=TRUE, 
+	remove_symbols=TRUE,
+	remove_numbers=TRUE
+)
+toks <- tokens_remove(toks, stopwords("en"))
+dtm <- dfm(toks, tolower=TRUE)
+```
+
+
+```{r}
+# step 1: load corpus and prepare DTM 
+data("data_corpus_ukmanifestos", package = "quanteda.corpora")
+toks <- tokens(
+	data_corpus_ukmanifestos, 
+	remove_punct=TRUE, 
+	remove_symbols=TRUE,
+	remove_numbers=TRUE
+)
+toks <- tokens_remove(toks, stopwords("en"))
+dtm <- dfm(toks, tolower=TRUE)
+```
+
+```{r}
+# step 2: subset to selected parties' manifestos
+dtm <- dfm_subset(x = dtm, subset = docvars(dtm, "Party") %in% c("Lab", "Con")
+)
+```
+
+
+let's pick two parties to compare
+
+```{r}
+#| eval: false
+head(docvars(dtm), 3)
+```
+
+```{r}
+#| echo: false
+head(docvars(dtm)[1:5], 3)
+```
+
+```{r}
+grp_var <- "Party"
+parties <- c("Lab", "Con")
+# subset to selected parties' manifestos
+dtm <- dfm_subset(
+  x = dtm, 
+  subset = docvars(dtm, grp_var) %in% parties
+)
+```
+
+aggregate documents at **_group_ level** (i.e., one row per party)
+
+```{r}
+grouped_corp <- dfm_group(
+	x = dtm, 
+	groups = docvars(dtm, grp_var)
+)
+ndoc(grouped_corp)
+docnames(grouped_corp)
+```
+
+```{r}
+grouped_corp <- grouped_corp[match(parties, docnames(grouped_corp)), ]  # ensure row order: Labour, Conservative
+```
+
+### Load helper functions
+
+```{r}
+source(file.path("R", "token_distinctiveness.R"))
+# imports custom helper functions
+# - get_top_n_terms() 
+# - plot_scores()
+```
+
+# metrics
+
+## Word count differences
+
+Let's compute "raw" word count differences:
+
+```{r}
+# step 1: get tokens counts matrix
+tok_counts <- as.matrix(grouped_corp)
+tok_counts[, 1:5]
+```
+
+```{r}
+# step 2: subtract counts between groups
+diff_freq <- tok_counts["Lab", ] - tok_counts["Con", ]
+diff_freq[1:4]
+```
+
+```{r}
+stats <- get_top_n_terms(diff_freq, groups = parties)
+plot_scores(x = stats, xlab = "Difference in word counts")
+```
+
+### Cons
+
+- Does not control for total word counts (makes groups incomparable when one has more text)
+- dominated by high-frequency function words (“the,” “and,” “to”) $\Rightarrow$ without additional term weighting or stopword removal, common but uninformative words dominate the top differences
+- still ignores _sampling variability_
+
+
+::: {.callout-note title="sampling variability"}
+
+- word counts (and their differences) are based on a _finite_ sample
+- no accounting for fact that resulting metrics are noisy estimates of 'true' underlying word-use probabilities
+- *sampling variability* is the _expected_ variation in estimates if multiple samples were drawn (e.g., different documents)
+
+:::
+
+## Word proportion differences
+
+Let's compute _relative_ word use differences:
+
+```{r}
+# step 1: compute total tokens per group
+toks_per_group <- rowSums(tok_counts)
+
+# step 2: compute proportions per group
+tok_props <- tok_counts/toks_per_group
+
+# step 3: subtract proportions between groups
+diff_prop <- tok_props["Lab", ] - tok_props["Con", ]
+diff_prop[1:4]
+```
+
+```{r}
+stats <- get_top_n_terms(diff_prop, groups = parties)
+plot_scores(x = stats, xlab = "Difference in word proportions")
+```
+
+
+### Pros and cons
+
+Pros: 
+
+- Controls for total word counts
+- makes groups comparable even if one has more text
+
+Cons: 
+
+- still dominated by high-frequency function words (“the,” “and,” “to”) $\Rightarrow$ without additional term weighting or stopword removal, common but uninformative words dominate the top differences
+- still ignores _sampling variability_
+
+## Log-odds ratio
+
+```{r}
+# add small constant to avoid zero proportions
+eps <- 1e-12 
+# clip proportions to avoid 0 or 1
+tok_props_clipped <- pmin(pmax(tok_props, eps), 1 - eps)
+# compute odds
+odds <- tok_props_clipped / (1 - tok_props_clipped)
+odds_ratio <- odds["Lab", ] / odds["Con", ]
+log_odds <- log(odds_ratio)
+log_odds[1:4]
+```
+
+```{r}
+stats <- get_top_n_terms(log_odds, groups = parties)
+plot_scores(x = stats, xlab = "Log-odds ratio")
+```
+
+### Pros and cons
+
+Pros: 
+
+- the log odds ratio introduces symmetry
+- expresses association strength $\Rightarrow$ provides a more interpretable measure of association ("how much more likely a word is used by one group?"). 
+
+Cons: 
+
+- unstable for rare words (without smoothing)
+- still ignores _sampling variability_
+
+## Smoothed log-odds ratio
+
+adding a small constant to counts (like 0.5) stabilize estimates for very rare words
+
+```{r}
+compute_logit <- function(group, e = 0.5) { 
+  counts <- tok_counts[group, ]
+  total  <- toks_per_group[group]
+  log( (counts + e) / (total - counts + e) ) 
+}
+logit_L <- compute_logit("Lab")
+logit_C <- compute_logit("Con")
+log_odds_smooth <- logit_L - logit_C
+log_odds_smooth[1:4]
+```
+
+```{r}
+stats <- get_top_n_terms(log_odds_smooth, groups = parties)
+plot_scores(x = stats, xlab = "Log-odds ratio (smoothed)")
+```
+
+### Pos and cons
+
+Pros: 
+
+- the log odds ratio introduces symmetry
+- expresses association strength $\Rightarrow$ provides a more interpretable measure of association ("how much more likely a word is used by one group?"). 
+- smoothing introduces Dirichlet priors to shrink extreme values toward zero, avoiding division by zero and extreme values for rare words
+
+Cons:
+
+- still overemphasizes rare or idiosyncratic words, reducing "semantic validity"
+- still ignores _sampling variability_
+
+## Monroe et al.'s _Fightin' Words_ $z$-scores 
+
+- builds on smoothed log-odds
+- incorporates an informative prior (empirical Bayes) to shrink a token's estimates toward its overall count
+- derived variance formula allows computation of *$z$-scores*
+- $z>1.96$ can be considered _significantly_ group-specific
+
+## Monroe et al.'s _Fightin' Words_ $z$-scores 
+
+::: {.callout-tip }
+
+I provide an `quanteda`-compatible R implementation in file ["R/token_distinctiveness.R"](https://github.com/haukelicht/cta_intro_course/blob/main/R/token_distinctiveness.R) loaded already above
+
+:::
+
+```{r}
+# NOTE: textstat_fighting_words() provided in R/token_distinctiveness.R
+fw_stats <- textstat_fighting_words(
+  x = grouped_corp, 
+  group.var = "Party", 
+  .pairs = "permutations"
+)
+```
+
+`fw_stats` is a list object
+
+```{r}
+str(fw_stats, 1)
+```
+
+The elements are he comparison results, eg for Lab vs. Con:
+
+```{r}
+fw_stats[["Lab-Con"]] |> 
+  select(feature, z_score, Party) |> 
+  head(6)
+```
+
+in comparison between Labour and Conservative party manifestos
+
+- _positive_ $z$-scores $\Rightarrow$ Labour-specific terms
+- _negative_ $z$-scores $\Rightarrow$ Conservative-specific terms
+- magnitude of $z$-score $\Rightarrow$ strength of "distinctiveness
+- $|z| > 1.96$ $\Rightarrow$ statistically significant distinctiveness
+
+
+```{r}
+top_zscores <- fw_stats[["Lab-Con"]] |> 
+  # for each party group
+  group_by(Party) |>
+  # sort from highest to lowest
+  arrange(desc(abs(z_score))) |> 
+  # get top 20
+  slice_head(n = 20) |> 
+  ungroup()
+
+plot_scores(top_zscores, value.var = "z_score", group.var = "Party", xlab = "Fightin' words z-score")
+```
+
+## Pros and cons
+
+Pros: 
+
+- combines the log odds ratio with its estimated variance
+	- takes variance into account
+	- provides statistical significance for differences
+- produces semantically meaningful, stable results
+- most robust and interpretable approach among those copmpared
+
+Cons:
+
+- more complex to compute
+- possible overfitting or spurious high scores for very rare words if priors are weak or sample size is small
