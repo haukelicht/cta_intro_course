@@ -6,6 +6,7 @@
 .Ruserdata
 *.Rproj
 .Renviron
+renv.lock
 
 get_pkg_versions.R
 models/*.zip

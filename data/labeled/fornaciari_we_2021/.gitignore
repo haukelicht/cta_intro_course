@@ -1,0 +1,5 @@
+*
+!*.md
+!splits/
+.DS_Store
+**/.DS_Store
