@@ -1,0 +1,168 @@
+country_iso	country	region	year	democracy_score	regime_type
+AFG	Afghanistan	Asia and Australasia	2016	2.55	Authoritarian
+AUS	Australia	Asia and Australasia	2016	9.01	Full democracy
+BGD	Bangladesh	Asia and Australasia	2016	5.73	Hybrid regime
+BTN	Bhutan	Asia and Australasia	2016	4.93	Hybrid regime
+KHM	Cambodia	Asia and Australasia	2016	4.27	Hybrid regime
+CHN	China	Asia and Australasia	2016	3.18	Authoritarian
+FJI	Fiji	Asia and Australasia	2016	5.64	Hybrid regime
+HKG	Hong Kong	Asia and Australasia	2016	6.42	Flawed democracy
+IND	India	Asia and Australasia	2016	7.81	Flawed democracy
+IDN	Indonesia	Asia and Australasia	2016	6.97	Flawed democracy
+JPN	Japan	Asia and Australasia	2016	7.99	Flawed democracy
+LAO	Laos	Asia and Australasia	2016	2.37	Authoritarian
+MYS	Malaysia	Asia and Australasia	2016	6.54	Flawed democracy
+MNG	Mongolia	Asia and Australasia	2016	6.62	Flawed democracy
+MMR	Myanmar	Asia and Australasia	2016	4.2	Hybrid regime
+NPL	Nepal	Asia and Australasia	2016	4.86	Hybrid regime
+NZL	New Zealand	Asia and Australasia	2016	9.26	Full democracy
+PRK	North Korea	Asia and Australasia	2016	1.08	Authoritarian
+PAK	Pakistan	Asia and Australasia	2016	4.33	Hybrid regime
+PNG	Papua New Guinea	Asia and Australasia	2016	6.03	Flawed democracy
+PHL	Philippines	Asia and Australasia	2016	6.94	Flawed democracy
+SGP	Singapore	Asia and Australasia	2016	6.38	Flawed democracy
+KOR	South Korea	Asia and Australasia	2016	7.92	Flawed democracy
+LKA	Sri Lanka	Asia and Australasia	2016	6.48	Flawed democracy
+TWN	Taiwan	Asia and Australasia	2016	7.79	Flawed democracy
+THA	Thailand	Asia and Australasia	2016	4.92	Hybrid regime
+TLS	Timor-Leste	Asia and Australasia	2016	7.24	Flawed democracy
+VNM	Vietnam	Asia and Australasia	2016	3.38	Authoritarian
+ALB	Albania	Eastern Europe and Central Asia	2016	5.91	Hybrid regime
+ARM	Armenia	Eastern Europe and Central Asia	2016	3.88	Authoritarian
+AZE	Azerbaijan	Eastern Europe and Central Asia	2016	2.65	Authoritarian
+BLR	Belarus	Eastern Europe and Central Asia	2016	3.54	Authoritarian
+BIH	Bosnia and Herzegovina	Eastern Europe and Central Asia	2016	4.87	Hybrid regime
+BGR	Bulgaria	Eastern Europe and Central Asia	2016	7.01	Flawed democracy
+HRV	Croatia	Eastern Europe and Central Asia	2016	6.75	Flawed democracy
+CZE	Czech Republic	Eastern Europe and Central Asia	2016	7.82	Flawed democracy
+EST	Estonia	Eastern Europe and Central Asia	2016	7.85	Flawed democracy
+GEO	Georgia	Eastern Europe and Central Asia	2016	5.93	Hybrid regime
+HUN	Hungary	Eastern Europe and Central Asia	2016	6.72	Flawed democracy
+KAZ	Kazakhstan	Eastern Europe and Central Asia	2016	3.06	Authoritarian
+KGZ	Kyrgyzstan	Eastern Europe and Central Asia	2016	4.93	Hybrid regime
+LVA	Latvia	Eastern Europe and Central Asia	2016	7.31	Flawed democracy
+LTU	Lithuania	Eastern Europe and Central Asia	2016	7.47	Flawed democracy
+MDA	Moldova	Eastern Europe and Central Asia	2016	6.01	Flawed democracy
+MNE	Montenegro	Eastern Europe and Central Asia	2016	5.72	Hybrid regime
+MKD	North Macedonia	Eastern Europe and Central Asia	2016	5.23	Hybrid regime
+POL	Poland	Eastern Europe and Central Asia	2016	6.83	Flawed democracy
+ROU	Romania	Eastern Europe and Central Asia	2016	6.62	Flawed democracy
+RUS	Russia	Eastern Europe and Central Asia	2016	3.24	Authoritarian
+SRB	Serbia	Eastern Europe and Central Asia	2016	6.57	Flawed democracy
+SVK	Slovakia	Eastern Europe and Central Asia	2016	7.29	Flawed democracy
+SVN	Slovenia	Eastern Europe and Central Asia	2016	7.51	Flawed democracy
+TJK	Tajikistan	Eastern Europe and Central Asia	2016	1.89	Authoritarian
+TKM	Turkmenistan	Eastern Europe and Central Asia	2016	1.83	Authoritarian
+UKR	Ukraine	Eastern Europe and Central Asia	2016	5.7	Hybrid regime
+UZB	Uzbekistan	Eastern Europe and Central Asia	2016	1.95	Authoritarian
+ARG	Argentina	Latin America and the Caribbean	2016	6.96	Flawed democracy
+BOL	Bolivia	Latin America and the Caribbean	2016	5.63	Hybrid regime
+BRA	Brazil	Latin America and the Caribbean	2016	6.9	Flawed democracy
+CHL	Chile	Latin America and the Caribbean	2016	7.78	Flawed democracy
+COL	Colombia	Latin America and the Caribbean	2016	6.67	Flawed democracy
+CRI	Costa Rica	Latin America and the Caribbean	2016	7.88	Flawed democracy
+CUB	Cuba	Latin America and the Caribbean	2016	3.46	Authoritarian
+DOM	Dominican Republic	Latin America and the Caribbean	2016	6.67	Flawed democracy
+ECU	Ecuador	Latin America and the Caribbean	2016	5.81	Hybrid regime
+SLV	El Salvador	Latin America and the Caribbean	2016	6.64	Flawed democracy
+GTM	Guatemala	Latin America and the Caribbean	2016	5.92	Hybrid regime
+GUY	Guyana	Latin America and the Caribbean	2016	6.25	Flawed democracy
+HTI	Haiti	Latin America and the Caribbean	2016	4.02	Hybrid regime
+HND	Honduras	Latin America and the Caribbean	2016	5.92	Hybrid regime
+JAM	Jamaica	Latin America and the Caribbean	2016	7.39	Flawed democracy
+MEX	Mexico	Latin America and the Caribbean	2016	6.47	Flawed democracy
+NIC	Nicaragua	Latin America and the Caribbean	2016	4.81	Hybrid regime
+PAN	Panama	Latin America and the Caribbean	2016	7.13	Flawed democracy
+PRY	Paraguay	Latin America and the Caribbean	2016	6.27	Flawed democracy
+PER	Peru	Latin America and the Caribbean	2016	6.65	Flawed democracy
+SUR	Suriname	Latin America and the Caribbean	2016	6.77	Flawed democracy
+TTO	Trinidad and Tobago	Latin America and the Caribbean	2016	7.1	Flawed democracy
+URY	Uruguay	Latin America and the Caribbean	2016	8.17	Full democracy
+VEN	Venezuela	Latin America and the Caribbean	2016	4.68	Hybrid regime
+DZA	Algeria	Middle East and North Africa	2016	3.56	Authoritarian
+BHR	Bahrain	Middle East and North Africa	2016	2.79	Authoritarian
+EGY	Egypt	Middle East and North Africa	2016	3.31	Authoritarian
+IRN	Iran	Middle East and North Africa	2016	2.34	Authoritarian
+IRQ	Iraq	Middle East and North Africa	2016	4.08	Hybrid regime
+ISR	Israel	Middle East and North Africa	2016	7.85	Flawed democracy
+JOR	Jordan	Middle East and North Africa	2016	3.96	Authoritarian
+KWT	Kuwait	Middle East and North Africa	2016	3.85	Authoritarian
+LBN	Lebanon	Middle East and North Africa	2016	4.86	Hybrid regime
+LBY	Libya	Middle East and North Africa	2016	2.25	Authoritarian
+MAR	Morocco	Middle East and North Africa	2016	4.77	Hybrid regime
+OMN	Oman	Middle East and North Africa	2016	3.04	Authoritarian
+PSE	Palestine	Middle East and North Africa	2016	4.49	Hybrid regime
+QAT	Qatar	Middle East and North Africa	2016	3.18	Authoritarian
+SAU	Saudi Arabia	Middle East and North Africa	2016	1.93	Authoritarian
+SDN	Sudan	Middle East and North Africa	2016	2.37	Authoritarian
+SYR	Syria	Middle East and North Africa	2016	1.43	Authoritarian
+TUN	Tunisia	Middle East and North Africa	2016	6.4	Flawed democracy
+ARE	United Arab Emirates	Middle East and North Africa	2016	2.75	Authoritarian
+YEM	Yemen	Middle East and North Africa	2016	2.07	Authoritarian
+AGO	Angola	Sub-Saharan Africa	2016	3.4	Authoritarian
+BEN	Benin	Sub-Saharan Africa	2016	5.67	Hybrid regime
+BWA	Botswana	Sub-Saharan Africa	2016	7.87	Flawed democracy
+BFA	Burkina Faso	Sub-Saharan Africa	2016	4.7	Hybrid regime
+BDI	Burundi	Sub-Saharan Africa	2016	2.4	Authoritarian
+CPV	Cape Verde	Sub-Saharan Africa	2016	7.94	Flawed democracy
+CMR	Cameroon	Sub-Saharan Africa	2016	3.46	Authoritarian
+CAF	Central African Republic	Sub-Saharan Africa	2016	1.61	Authoritarian
+TCD	Chad	Sub-Saharan Africa	2016	1.5	Authoritarian
+COM	Comoros	Sub-Saharan Africa	2016	3.71	Authoritarian
+COG	Republic of the Congo	Sub-Saharan Africa	2016	2.91	Authoritarian
+CIV	Ivory Coast	Sub-Saharan Africa	2016	3.81	Authoritarian
+COD	Democratic Republic of the Congo	Sub-Saharan Africa	2016	1.93	Authoritarian
+DJI	Djibouti	Sub-Saharan Africa	2016	2.83	Authoritarian
+GNQ	Equatorial Guinea	Sub-Saharan Africa	2016	1.7	Authoritarian
+ERI	Eritrea	Sub-Saharan Africa	2016	2.37	Authoritarian
+SWZ	Eswatini	Sub-Saharan Africa	2016	3.03	Authoritarian
+ETH	Ethiopia	Sub-Saharan Africa	2016	3.6	Authoritarian
+GAB	Gabon	Sub-Saharan Africa	2016	3.74	Authoritarian
+GMB	Gambia	Sub-Saharan Africa	2016	2.91	Authoritarian
+GHA	Ghana	Sub-Saharan Africa	2016	6.75	Flawed democracy
+GIN	Guinea	Sub-Saharan Africa	2016	3.14	Authoritarian
+GNB	Guinea-Bissau	Sub-Saharan Africa	2016	1.98	Authoritarian
+KEN	Kenya	Sub-Saharan Africa	2016	5.33	Hybrid regime
+LSO	Lesotho	Sub-Saharan Africa	2016	6.59	Flawed democracy
+LBR	Liberia	Sub-Saharan Africa	2016	5.31	Hybrid regime
+MDG	Madagascar	Sub-Saharan Africa	2016	5.07	Hybrid regime
+MWI	Malawi	Sub-Saharan Africa	2016	5.55	Hybrid regime
+MLI	Mali	Sub-Saharan Africa	2016	5.7	Hybrid regime
+MRT	Mauritania	Sub-Saharan Africa	2016	3.96	Authoritarian
+MUS	Mauritius	Sub-Saharan Africa	2016	8.28	Full democracy
+MOZ	Mozambique	Sub-Saharan Africa	2016	4.02	Hybrid regime
+NAM	Namibia	Sub-Saharan Africa	2016	6.31	Flawed democracy
+NER	Niger	Sub-Saharan Africa	2016	3.96	Authoritarian
+NGA	Nigeria	Sub-Saharan Africa	2016	4.5	Hybrid regime
+RWA	Rwanda	Sub-Saharan Africa	2016	3.07	Authoritarian
+SEN	Senegal	Sub-Saharan Africa	2016	6.21	Flawed democracy
+SLE	Sierra Leone	Sub-Saharan Africa	2016	4.55	Hybrid regime
+ZAF	South Africa	Sub-Saharan Africa	2016	7.41	Flawed democracy
+TZA	Tanzania	Sub-Saharan Africa	2016	5.76	Hybrid regime
+TGO	Togo	Sub-Saharan Africa	2016	3.32	Authoritarian
+UGA	Uganda	Sub-Saharan Africa	2016	5.26	Hybrid regime
+ZMB	Zambia	Sub-Saharan Africa	2016	5.99	Hybrid regime
+ZWE	Zimbabwe	Sub-Saharan Africa	2016	3.05	Authoritarian
+CAN	Canada	North America	2016	9.15	Full democracy
+USA	United States	North America	2016	7.98	Flawed democracy
+AUT	Austria	Western Europe	2016	8.41	Full democracy
+BEL	Belgium	Western Europe	2016	7.77	Flawed democracy
+CYP	Cyprus	Western Europe	2016	7.65	Flawed democracy
+DNK	Denmark	Western Europe	2016	9.2	Full democracy
+FIN	Finland	Western Europe	2016	9.03	Full democracy
+FRA	France	Western Europe	2016	7.92	Flawed democracy
+DEU	Germany	Western Europe	2016	8.63	Full democracy
+GRC	Greece	Western Europe	2016	7.23	Flawed democracy
+ISL	Iceland	Western Europe	2016	9.5	Full democracy
+IRL	Ireland	Western Europe	2016	9.15	Full democracy
+ITA	Italy	Western Europe	2016	7.98	Flawed democracy
+LUX	Luxembourg	Western Europe	2016	8.81	Full democracy
+MLT	Malta	Western Europe	2016	8.39	Full democracy
+NLD	Netherlands	Western Europe	2016	8.8	Full democracy
+NOR	Norway	Western Europe	2016	9.93	Full democracy
+PRT	Portugal	Western Europe	2016	7.86	Flawed democracy
+ESP	Spain	Western Europe	2016	8.3	Full democracy
+SWE	Sweden	Western Europe	2016	9.39	Full democracy
+CHE	Switzerland	Western Europe	2016	9.09	Full democracy
+TUR	Turkey	Western Europe	2016	5.04	Hybrid regime
+GBR	United Kingdom	Western Europe	2016	8.36	Full democracy
