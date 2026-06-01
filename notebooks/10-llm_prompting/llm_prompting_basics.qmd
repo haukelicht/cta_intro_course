@@ -1,0 +1,377 @@
+---
+title: "LLM prompting with `ellmer` in R"
+author: Hauke Licht
+institute: University of Innsbruck
+date: 2025-11-06
+toc: true
+toc-depth: 2
+toc-location: right
+toc-expand: true
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+  cached: true
+  fig-height: 2.8
+  fig-width: 4.5
+code-annotations: select
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    anchor-sections: true
+    smooth-scroll: true
+---
+
+```{r setup}
+#| echo: false
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+options(scipen = 1, digits = 4) #set to two decimal 
+```
+
+# Introduction
+
+## Ingredients
+
+to prompt LLMs in R using the `ellmer` package, we need
+
+1. an R environment with the `ellmer` package installed.
+2. a "backend" LLM service that `ellmer` can connect to.
+
+In this notebook, we will rely on Hugging Face's (HF) [_Inference Providers_](https://huggingface.co/docs/inference-providers/en/index) API.
+But you can also use other backends supported by `ellmer`, such as OpenAI, Cohere, or local models via `ollama` (see [here](https://ellmer.tidyverse.org/reference/index.html#chatbots))
+
+# Setup
+
+## Package import
+
+```{r load-packages}
+library(ellmer)  # TODO: run renv::install("ellmer@0.4.0") if you get an error here
+library(usethis) # TODO: run renv::install("usethis") if you get an error here
+```
+
+## Setting your hugging face API key
+
+We will use the Hugging Face Inference Providers API as our LLM backend.
+This means that the LLMs we prompt are running in the cloud.
+We therefore use an [API](https://en.wikipedia.org/wiki/API) to send our prompts to the model and the API also sends back the requests to us.
+
+To access this API, you need to insert the API key to the `.Renviron` file in your current _RStudio_ R project:
+
+1. Open your R project in RStudio by running `usethis::edit_r_environ(scope = "project")`
+2. In the file that is opened in RStudio, insert in a new line the text `HUGGINGFACE_API_KEY=`
+3. Paste the API key I have posted in the **_OpenOLAT Forum_** your after the `=` sign (without any white spaces)
+4. Save the file and restart R (Session -> Restart R in RStudio)
+5. Verify that this succeeded by running the line
+   ```r
+   !is.na(Sys.getenv("HUGGINGFACE_API_KEY", unset = NA))
+   ```
+   If this returns `FALSE`, something went wrong. 
+   Please ask me for help in this case.
+
+::: {.callout-note title="cloud usage"}
+
+Using models hosted by Hugging Face and its inference providers in the cloud means that
+
+1. you need a _stable internet connection_ to use them 
+2. you need to _pay_ for usage through an API account (see [here](https://huggingface.co/docs/inference-providers/en/pricing) and [here](https://huggingface.co/inference/models))
+
+:::
+
+::: {.callout-warning title="Costs"}
+
+Generating responses with an LLM with the API token costs money. 
+This money is charged on my account. 
+I will cover the costs arising for your LLM usage during this course (up to $4 per person).
+
+So please **be careful when using LLM in R with my API token**.
+In particular:
+
+1. Test your LLM text classification code always only with a handful of texts.
+2. Avoid just clicking on "Run all" all the time and execute relevant lines selectively in your R scripts.
+3. If running a code line or block that triggers an LLM API requests (e.g., `model$chat()`) results in an error, first make sure that you understand the source of the error instead of trying to run it again and again.
+
+Should I see that someone uses the API token excessively, I'll ultimately need to revoke their access to it.
+
+
+:::
+
+::: {.callout-note title="Future use"}
+
+In the future, you'll need to setup your own Hugging Face Pro account and pay for LLM usage  yourself (see [here](https://huggingface.co/pro) and [here](https://huggingface.co/settings/tokens))
+
+:::
+
+## Setting up the LLM backend
+
+We first need to specify the model path and name of the LLM we want to use:
+
+We'll use `Qwen3-235B-A22B-Instruct-2507` by `Qwen` from privider `novita`:
+
+```{r model_name}
+model_id <- "Qwen/Qwen3-Next-80B-A3B-Instruct:together"
+```
+
+::: {.callout-note title="Model choice"}
+
+You find a list of available LLMs [here](https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads&search=instruct).
+
+Once you have found a suitable model, check its availability [here](https://huggingface.co/inference/models)
+
+:::
+
+Now we can setup the backend with `ellmer`'s `chat_huggingface()` function:
+
+```{r}
+# create a hugging face backend
+model <- chat_huggingface(
+  model = model_id,
+  params = params(
+    temperature = 0.0, 
+    seed = 42
+  )
+)
+class(model)
+```
+
+::: {.callout-note title="`ellmer` Chat objects"}
+
+The `model` object created above is a `Chat` object.
+
+To see the available methods defined for the `Chat` class, run: `help("Chat", package = "ellmer")`
+
+:::
+
+## Basic prompting
+
+Now we can use the `model` object to prompt the LLM.
+This is done by calling the backend's `chat()` method with a prompt string:
+
+```{r basic-prompting}
+model$chat("What is the capital of Austria? Respond in one sentence.", echo = "none")
+```
+
+As you see, this returns the model's response as a string.
+
+# Text classification
+
+::: {.callout-warning title="Always keep the convo tidied up"}
+
+You need to always reset the conversation history of the LLM starting a new prompt session.
+Otherwise, earlier "turns" between user input and model response will influence the models classification decisions
+
+In ellmer, this can be done by running `model$set_turns(list())` before a new call of `model$chat()`:
+
+```{r}
+model$set_turns(list())
+```
+
+:::
+
+To classify a text, we can instruct the LLM to do so in the prompt.
+At a minimum, we
+
+1. describe the classification task 
+2. specify the possible label categories
+3. instruct the model to only respond with the choosen category
+4. and finally provide the text.
+
+
+```{r}
+instruction <- '
+Classify the following text into positive, negative, or neutral sentiment. 
+Only respond with one of these three labels.
+
+Text:'
+# remove line breaks at start and end 
+instruction <- trimws(instruction)
+
+# add to be classified text
+input <- paste(instruction, '"""I love programming in R!"""')
+
+model$chat(input)
+```
+
+::: {.callout-note title="Reseting the conversation history"}
+
+
+`model$set_turns(list())` resets the conversation history to an empty list, meaning that no previous messages are considered by the LLM when responding to the new prompt.
+
+:::
+
+## Using the system message
+
+As you know from my introduction, in LLM prompting, inputs and model responses are organized in a so-called **_conversation history_**
+
+- each conversation history is composed a list of **_messages_**
+- each message has two components
+    1. a **_content_** (the text) _and_
+    2. a role
+- the relevant **_roles_** are:
+    - _system_
+    - _user_
+    - _assistant_
+
+This means that each conversation history is a list of messages, where each message has a content and a role.
+
+- The **system message** is used to set the behavior of the LLM for the entire conversation. It is _optional_ and if specified, its only defined once at the beginning of a conversation history.
+- The **user messages** are the actual prompts that you send to the LLM. In text classification applications, its the to-be-classified text, e.g., `"I love programming in R!"`.
+- The **assistant messages** contains the responses of the LLM to the user messages. In text classification applications, its the predicted label, e.g., `"positive"`.
+
+In the example above, we have specified the classification instruction and to-be-classified text all in one user message.
+
+But we can also separate these components:
+
+
+```{r}
+#| echo: false
+model$set_turns(list())
+```
+
+
+```{r}
+instructions <- "
+You will be provided with a text.
+
+Your task is to classify the text's sentiment using the categories positive, negative, or neutral.
+
+Only respond with one of the allowed labels: positive, negative, neutral
+"
+
+# set the system message of the model
+model$set_system_prompt(instructions)
+
+# specify the text to be classified as user message
+text <- "I love programming in R!"
+
+# send the text to the model
+model$chat(text)
+```
+
+## Structured responses
+
+To ensure that the LLM always only chooses from the allowed categories, we can specify a **response format**.
+Response formats can be complex (see [here](https://ellmer.tidyverse.org/articles/structured-data.html)) but in classification, we only need to define the list of allowed label categories:
+
+```{r}
+response_format <- type_enum(
+  values = c("positive", "neutral", "negative"), 
+  description = "Sentiment classification of the input text"
+)
+```
+
+We can pass this information when prompting the LLM to generate a classification response by using the `chat_structured()` method (instead of `chat()`) and passing the response format to the `type` argument:
+
+```{r}
+model$set_turns(list())
+```
+
+```{r}
+# NOTE: we re-use the instructions defined above
+model$set_system_prompt(instructions)
+
+text <- "I love programming in R!"
+
+# generate a structured response 
+model$chat_structured(text, type = response_format)
+```
+
+You can see now that this time, we get a character value returned.
+
+## Classifying multiple texts
+
+To classify multiple texts at once using the same classification instructions, we can use `ellmer`'s `parallel_chat()` function.
+
+This function accepts a `Chat` object (here, `model`) and a _list_ of input texts to be classified.
+If we want structured responses, we use the `parallel_chat_structured()` function instead and also need to pass the response format to the `type` argument:
+
+
+```{r}
+model$set_turns(list())
+```
+
+```{r}
+# NOTE: we re-use the instructions defined above
+model$set_system_prompt(instructions)
+
+texts <- c(
+  "I love programming in R!",
+  "Learning text analysis with Hauke is fun!",
+  "But I hate bugs in my code.",
+  "Oh well, debugging is okay, I guess."
+)
+
+parallel_chat_structured(
+  model,
+  prompts = as.list(texts), # NOTE: important to convert to list
+  type = response_format # NOTE: we re-use the response format defined above
+)
+```
+
+::: {.callout-note title="Levels"}
+
+In the output above, the `Levels: positive neutral negative` indicates that the returned vector of classifications is a `factor` (not a character) vector.
+The levels are thus only showing what the possible values printed in the line above are ☺️
+
+::: 
+
+## More complex response formats
+
+So far, we use a very simple response format: the LLMs response must be one of the allowed labels.
+However, in text classification and other application, it can often be helpful to more information than the chosen classification label.
+
+Below, we will create a new response format that combines classification choice with a text the LLM needs to generate before naming its classification decision -- which we call _reasoning_.
+To create this reasoning object we
+
+1. define an **response object type** using `ellmer`'s `type_object()` function
+2. inside the object type, we define two fields:
+   - `reasoning`: a _string_ field where the LLM writes its reasoning
+   - `category`: an _enumeration_ field where the LLM chooses one of the allowed categories (as before)
+
+
+```{r}
+response_format <- type_object(
+  reasoning = type_string(
+    description = "Your reasoning of what sentiment category should be assigned to the text"
+  ),
+  category = type_enum(
+    c("positive", "neutral", "negative"), 
+    description = "The sentiment category you assign to the text"
+  ),
+  .description = "Sentiment classification with reasoning"
+)
+```
+
+If we now pass a text to be classified, the LLM will respond with an object that contains both its reasoning and the chosen category:
+
+```{r}
+#| echo: false
+model$set_turns(list())
+```
+
+```{r}
+# NOTE: we re-use the instructions defined above
+model$set_system_prompt(instructions)
+
+text <- "I love programming in R!"
+
+# generate a structured response 
+model$chat_structured(text, type = response_format)
+```
+
+This time, we get a list back with two elements: `reasoning` and `category`.
+The element `reasoning` contains the LLMs reasoning text, and `category` contains the chosen sentiment label.
+
+# Conclusion
+
+This is all you need to know to make your first steps in zero-shot text classification with LLMs!
+When applying the code covered in this notebook, remember to 
+
+1. Integrate your Hugging Face API key in the `.Renviron` file (if not yet done)
+2. Use the `huggingface_chat` function and the ID of an available LLM (see [here](https://huggingface.co/inference/models)) to create a `Chat` object that allows you "talking" to the chosen LLM
+3. Reset the conversation history before starting a new classification task using  `model$set_turns(list())`.
+4. Define clear instructions for the classification task and response behavior using either a system message or user message.
+5. Define a response format that constrains at least the allowed categories.
+6. Use `parallel_chat_structured()` to classify multiple texts applying the same instructions.
+
