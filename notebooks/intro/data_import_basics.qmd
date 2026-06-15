@@ -1,0 +1,690 @@
+---
+title: "Data import basics"
+author: Hauke Licht
+institute: University of Innsbruck
+date: last-modified
+date-format: "MMMM D, YYYY"
+toc: true
+toc-depth: 2
+toc-location: right
+toc-expand: true
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+code-annotations: select
+format:
+  html:
+    embed-resources: true
+    self-contained: true
+    anchor-sections: true
+    smooth-scroll: true
+---
+
+```{r setup}
+#| echo: false
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+```
+
+---
+
+# File Systems
+
+
+
+
+## Overview
+
+- Understanding paths and file operations in R
+- Key functions: `getwd()`, `file.path`, `basename`, `dirname`, `dir.exists`, `file.exists`, `create.dir`
+
+
+
+## File trees 
+
+- Files are organized in folders and subfolders in a hierarchical structure
+- The **root folder** is the top-most directory in the hierarchy
+- Paths are used to navigate and locate files in the system
+
+#### Example
+
+:::: columns
+
+::: column
+
+```
+~
+├── Desktop
+│   ├── file.txt
+│   ├── subfolder
+│   │   ├── file2.txt
+│   │   └── file3.txt
+│   └── another_subfolder
+│       └── file4.txt
+...
+```
+
+**`~`** represents your **home directory**
+
+```{r}
+# show the absolute path of your home directory
+path.expand("~")
+```
+
+:::
+
+::: column
+
+Paths can be *absolute* or *relative*
+
+- **Absolute path**: Full path from the root directory, e.g. `/home/hlicht/Desktop/file.txt`
+- **Relative path**: Path relative to the current working directory, e.g. `subfolder/file2.txt` (when `~/Desktop` is your working directory)
+
+:::
+
+::::
+
+
+
+## The working directory
+
+- the **working directory** is the current directory where R searches for files
+- `getwd()` retrieves the current working directory
+
+#### Example
+
+```{r}
+# print the current working directory
+getwd()
+```
+
+<!-- **_Note:_** This notebook is created with quarto, which always sets the working directory to the folder that contains the .qmd file. Hence, we are in the `. > notebooks > intro`. -->
+
+
+---
+
+# R Projects
+
+## Overview
+
+- **R Projects** set the root directory to make paths compatible across users.
+- This makes the project folder the root folder.
+- So we can use relative paths to locate files in the project folder.
+
+### Opening an R project
+
+:::: columns
+
+::: column
+
+**_Option 1_** 👉
+
+1. locate the .Rproj file in a folder (e.g., "cta_intro_course.Rproj" in `cta_intro_course/`)
+2. double-click the file to open the project in RStudio
+
+
+:::
+
+::: column
+
+<br>
+
+![](./data_import_basics_imgs/rproj_finder.png)
+
+
+:::
+::::
+
+**_Option 2_**
+
+Select an existing R project in RStudio:
+
+1. go to the menu (top of the RStudio app windo)
+2. Select "File"
+3. Select open "Open Project..."
+
+
+---
+
+# Useful file system functions in R
+
+## `file.path`
+
+- Generates system-specific paths
+- Utilizes `.Platform$file.sep` for compatibility
+
+#### Example
+
+```{r}
+# define a path under the current system
+fp <- file.path("folder", "subfolder", "file.txt")
+fp
+```
+
+
+
+## `basename` and `dirname`
+
+- `basename` for obtaining the file name from path
+- `dirname` for obtaining the directory part of path
+
+#### Example
+
+```{r}
+fp <- file.path("folder", "subfolder", "file.txt")
+# print file name
+basename(fp)
+# print directory path
+dirname(fp)
+```
+
+
+
+## `dir.exists` and `file.exists`
+
+- Checks if directories and files exist
+- `dir.exists` for directories, `file.exists` for files
+
+#### Example
+
+```{r}
+# check existence (in current folder)
+dir.exists("data_import_basics_files") # returns TRUE
+dir.exists("yfgsx") # returns FALSE
+
+file.exists("data_import_basics.qmd") # returns TRUE
+file.exists("yfgsx.txt") # returns FALSE
+```
+
+
+
+## `dir.create` and `unlink`
+
+- Function to create and remove directories
+- Handles the creation of non-existent directories
+
+#### Example
+
+```{r}
+# create a directory
+dir.create("new_folder")
+# check
+dir.exists("new_folder") # TRUE
+
+# remove (see https://stackoverflow.com/q/28097035)
+unlink("new_folder", recursive = TRUE)
+# check
+dir.exists("new_folder") # FALSE
+```
+
+---
+
+# File import from local files
+
+When you store a file (e.g., a CSV file) on your computer (i.e., _locally_), there are various R functions for reading them into R:
+
+To get an overview of functions, it's useful to distinguish between two aspects of a file's format:
+
+1. is the data structure *tabular* or not  
+    - **Tabular**: "2-dimensional" data organized in rows and columns, e.g., CSV, TSV, Excel
+    - **Non-tabular**: Data in other formats, e.g., JSON, XML, HTML, PDF, Word
+2. does the data have a defined *schema* or not &rArr; *structured* vs. unstructured format
+    - **Structured**: Data with a defined schema, e.g., CSV, JSON, XML
+    - **Unstructured**: Data without a defined schema, e.g., PDF, Word
+
+
+## Import tabular data: Comma/Tab Separated
+
+- Importance of managing tabular data
+- CSV, TSV and their functions
+
+
+### Comma/Tab Separated
+
+- `readr::read_csv` for reading *comma-separated* file (CSV) with extension ".csv"
+, `readr::read_tsv` for reading *tab-separated* file (TSV) with extensions ".tsv"
+- `readr::read_delim` for custom delimiters (e.g., ";" for semicolon-separated files)
+
+```{r}
+library(readr)
+library(dplyr)
+```
+
+#### Examples
+
+```{r}
+#| message: false
+# read CSV file
+fp <- file.path("data", "examples", "tabular", "test.csv")
+df <- read_csv(fp)
+glimpse(df) # NOTE: `glimpes()` copmes fropm the "dplyr" package and provides a simple overviews of a data frame
+```
+
+
+```{r}
+#| message: false
+# read TSV file
+fp <- file.path("data", "examples", "tabular", "test.tsv")
+df <- read_tsv(fp)
+glimpse(df)
+```
+
+
+
+## Import tabular data: MS Excel files
+
+- Using `readxl::read_excel` to read Excel files
+- Handles ".xlsx" files effectively
+
+#### Example
+
+::: {.callout-note icon=false}
+run `renv::install("readxl")` if needed
+:::
+
+```{r}
+#| message: false
+library(readxl)
+# read Excel file
+fp <- file.path("data", "examples", "tabular", "test.xlsx")
+df <- read_excel(fp)
+glimpse(df)
+```
+
+
+
+## Import non-tabular data
+
+### Overview
+
+- Unstructured and structured non-tabular data
+- Handling formats like JSON, XML, HTML
+
+
+
+## Import MS Word files (.docx)
+
+- Reading MS Word documents using `officer::read_docx`
+- Handling .docx files in data analysis
+
+#### Example
+
+
+::: {.callout-note icon=false}
+run `renv::install("officer")` if needed
+:::
+
+```{r}
+#| message: false
+library(officer)
+# read Word document
+fp <- file.path("data", "examples", "files", "test_file.docx")
+doc <- read_docx(fp)
+content <- docx_summary(doc)
+content
+```
+
+
+
+## Import PDF files (.pdf)
+
+- Extract text from PDF using `pdftools::pdf_text`
+- Useful for text processing
+
+#### Example
+
+::: {.callout-note icon=false}
+run `renv::install("pdftools")` if needed
+:::
+
+```{r}
+#| message: false
+library(pdftools)
+# extract text from PDF
+fp <- file.path("data", "examples", "files", "test_file.pdf")
+doc <- pdf_text(fp)
+# print first 500 characters in document
+cat(substr(doc, 1, 500))
+```
+
+
+
+## Import JSON files
+
+- Reading JSON files with `jsonlite::read_json`
+- Common in web data and configurations
+
+#### Example
+
+::: {.callout-note icon=false}
+run `renv::install("jsonlite")` if needed
+:::
+
+```{r}
+#| message: true
+library(jsonlite)
+# read JSON file
+fp <- file.path("data", "examples", "nontabular", "test.json")
+data <- read_json(fp)
+# show first three elements
+data[1:3]
+```
+
+
+
+## Import JSONlines files (.jsonl)
+
+- Combining `readr::read_lines`, `purrr::map`, `jsonlite::fromJSON`
+- Efficient for large sets of JSON objects
+
+#### Example
+
+```{r}
+#| message: false
+library(readr)
+library(purrr)
+library(jsonlite)
+# read JSON lines and convert
+fp <- file.path("data", "examples", "nontabular","test.jsonl")
+lines <- read_lines(fp)
+data <- map(lines, fromJSON)
+data
+```
+
+
+
+## Import XML files (.xml)
+
+- `xml2::read_xml` to read XML files
+- Widely used in web data, configurations
+
+#### Example
+
+::: {.callout-note icon=false}
+run `renv::install("xml2")` if needed
+:::
+
+```{r}
+#| message: true
+library(xml2)
+# read XML file
+fp <- file.path("data", "examples", "files", "example.xml")
+data <- read_xml(fp)
+data
+```
+
+
+
+## Import HTML files (.html)
+
+- `xml2::read_html` to read HTML content
+- Useful for web scraping, data extraction from websites
+
+#### Example
+
+::: {.callout-note icon=false}
+run `renv::install("xml2")` if needed
+:::
+
+```{r}
+#| message: true
+library(xml2)
+# read HTML file
+fp <- file.path("data", "examples", "files", "example.html")
+data <- read_html(fp)
+data
+```
+
+# Data import from external sources
+
+Many commonly used political (text) dataset are available online
+
+- [*ParlSpeech2*](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/L4OAKN) (Rauh & Schwalbach [2022](https://osf.io/preprints/socarxiv/cd2qs_v1))
+- the [*Manifesto Project* dataset](https://manifesto-project.wzb.eu/)
+- the *Comparative Agendas Project* ([CAP](https://www.comparativeagendas.net/)) corpora
+
+For replicability and version control purposes, it's a **best practice** to program the download of these data (instead of manually downloading and saving them)
+
+## Import from *Harvard Dataverse*
+
+Many replication materials for articles published in poltical science journals are available through [**Harvard Dataverse**](https://dataverse.harvard.edu/dataverse/harvard): 
+   
+Many journals have their own "dataverses". Here some:
+     
+- _American Political Science Review_ (APSR): https://dataverse.harvard.edu/dataverse/the_review
+- _Political Analysis_: https://dataverse.harvard.edu/dataverse/pan
+- _The Journal of Politics_ (JOP): https://dataverse.harvard.edu/dataverse/jop
+- _Political Science Research & Methods_ (PSRM): https://dataverse.harvard.edu/dataverse/PSRM
+     
+**IMPORTANT:** In the URLs listed above, the last part behind the last "/" is called "Dataverse ID" -- we need this to automatically download files from  a journals dataverse
+
+
+
+### Example 1: Downloading with the persistent file URL
+
+We will use the replication data of the article 
+
+> Bestvater, S., & Monroe, B. (2023). Sentiment is Not Stance: Target-Aware Opinion Classification for Political Text Analysis.  _Political Analysis_, 31(2), 235-256.
+      
+The repository is [https://doi.org/10.7910/DVN/MUYYG4](https://doi.org/10.7910/DVN/MUYYG4)
+
+<br>
+
+
+:::: columns
+
+::: column
+
+#### Step 1. locate the file we want to download
+
+1) go to [https://doi.org/10.7910/DVN/MUYYG4](https://doi.org/10.7910/DVN/MUYYG4)
+2) in the "Files" panel, click "Tree"
+3) in the data folder, find and click on the file 'WM_tweets_groundtruth.tab'
+3) on the files page, go to the "Metadata" tab
+4) get the value in the field "Download URL"
+
+:::
+
+::: column
+
+![](./data_import_basics_imgs/dataverse_bestvater_files.png){width=80%}
+:::
+::::
+
+#### Step 2. read the file
+
+```{r}
+#| cache: true
+#| eval: false
+file_url <- "https://dataverse.harvard.edu/api/access/datafile/5374866"
+# we use `read_tsv` because the file we want to download is a .tab file, i.e. "tab-separated"
+df <- read_tsv(file_url)
+glimpse(df)
+```
+
+### Example 2: Dowload with file persistent ID
+
+We will use the replication data for the article 
+
+> Barberá, P., Boydstun, A. E., Linn, S., McMahon, R., & Nagler, J. (2021). Automated Text Classification of News Articles: A Practical Guide. _Political Analysis_, 29(1), 19–42.
+      
+The repository is [https://doi.org/10.7910/DVN/MXKRDE](https://doi.org/10.7910/DVN/MXKRDE)
+
+<br>
+
+#### Step 1. load the 'dataverse' package and set the necessary environment variables
+
+::: {.callout-note icon=false}
+run `renv::install("dataverse")` if needed
+:::
+
+```{r}
+#| eval: false
+library(dataverse)
+Sys.setenv("DATAVERSE_SERVER" = "dataverse.harvard.edu")
+Sys.setenv("DATAVERSE_ID" = "pan") # set to Political Analysis dataverse ID !
+```
+
+
+#### Step 2. locate the file we want to download
+
+:::: columns
+
+::: column
+
+1) go to https://doi.org/10.7910/DVN/MXKRDE 
+2) search for the file 'ground-truth-dataset-cf.tab'
+3) on the files page, go to the "Metadata" tab
+4) get the value in the field "File Persistent ID"
+
+:::
+
+::: column
+
+![](./data_import_basics_imgs/dataverse_barbera_file_page.png)
+
+![](./data_import_basics_imgs/dataverse_barbera_file_metadata.png)
+:::
+
+::::
+
+```{r}
+persistent_id <- "doi:10.7910/DVN/MXKRDE/EJTMLZ"
+```
+
+#### Step 3. download the file and read it into R
+
+```{r}
+#| eval: false
+#| cache: true
+df <- get_dataframe_by_doi(
+  # use the file persistent ID to specify which file to download
+  filedoi = persistent_id, 
+  # pass the appropriate file reading function (from the readr package)
+  .f = read_tsv,
+  # specify concrete file version
+  version = "1.2"
+)
+```
+
+
+
+## Download from GitHub
+
+- Github is a code sharing and open-source collaboration platform.
+- Some researchers use it to store make available the replication materials
+    
+We will use the example of the article 
+
+> van Atteveldt, W., van der Velden, M. A. C. G. & Boukes, M. (2021) The Validity of Sentiment Analysis: Comparing Manual Annotation, Crowd-Coding, Dictionary Approaches, and Machine Learning Algorithms. _Communication Methods and Measures_, 15(2), 121-140.
+      
+The repository is [https://github.com/vanatteveldt/ecosent](https://github.com/vanatteveldt/ecosent)
+
+#### Step 1. locate the files we want to download
+
+:::: columns
+
+::: column
+
+
+1) go to https://github.com/vanatteveldt/ecosent
+2) click on the "data" folder
+3) get gold sentences' texts:  in the 'raw' subfolder, 
+   1. find the file 'gold_sentences.csv'
+   2. click on the file
+   3. click on the "Raw" button
+   4. copy the URL of the raw file
+4) get gold sentences' expert codings: in the intermediate 'subfolder'
+   1. find the file 'gold.csv'
+   2. click on the file
+   3. click on the "Raw" button
+   4. copy the URL of the raw file
+
+
+:::
+::: column
+
+![](./data_import_basics_imgs/github_vanatteveldt_files.png){width=50%}
+
+![](./data_import_basics_imgs/github_vanatteveldt_file_page.png)
+
+:::
+
+::::
+
+```{r}
+#| cache: true
+gold_sentences_texts_url <- "https://raw.githubusercontent.com/vanatteveldt/ecosent/master/data/raw/gold_sentences.csv"
+gold_sentences_labels_url <- "https://raw.githubusercontent.com/vanatteveldt/ecosent/master/data/intermediate/gold.csv"
+```
+
+#### Step 2. download the files and combine them
+
+```{r}
+sentences_df <- read_csv(gold_sentences_texts_url)
+labels_df <- read_csv(gold_sentences_labels_url)
+
+colnames(sentences_df)
+colnames(labels_df)
+```
+
+*Note:* we use `read_csv` because the file we want to download is a .csv file
+
+```{r}
+#| message: false
+#| warning: false
+library(dplyr)
+# compute number of labels per headline
+labels_df |> 
+  group_by(id) |> 
+  summarise(n_labels = n()) |> 
+  # count numbers of labels per headlines
+  count(n_labels)
+
+```
+
+*Note:* each of 284 headlines has only one label
+
+```{r}
+
+# combine texts and labels
+gold_df <- inner_join(labels_df, sentences_df, by = "id")
+```
+
+## Download and extracting from a ZIP file
+
+We can download ZIP archives and extract selected files in R
+
+#### Example 
+
+We will use the replication data for the article 
+
+> Benoit, K., Conway, D., Lauderdale, B. E., Laver, M., & Mikhaylov, S. (2016). Crowd-sourced Text Analysis: Reproducible and Agile Production of Political Data. _American Political Science Review_, 110(2), 278–295.
+      
+The Github repository is here https://github.com/kbenoit/CSTA-APSR
+
+```{r}
+#| cached: true
+url <- "https://github.com/kbenoit/CSTA-APSR/raw/4bc6cbc48a4eeff557cbb03b8ede73b29e36aa00/Data%20-%20CF%20jobs/CFjobresults.zip"
+
+# download 
+temp <- tempfile()
+download.file(url, temp, quiet = TRUE)
+
+# list contents
+conts <- unzip(temp, list = TRUE)$Name
+head(conts, 4)
+
+# extract and read selected file
+df <- read_csv(unz(temp, "f240807.csv"))
+
+# remove ZIP in temporary location
+unlink(temp, recursive = TRUE)
+
+glimpse(df)
+```
+
+
+
+

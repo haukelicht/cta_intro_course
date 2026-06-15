@@ -1,0 +1,407 @@
+---
+title: "R Text Wrangling Basics"
+author: Hauke Licht
+institute: University of Innsbruck
+date: last-modified
+date-format: "MMMM D, YYYY"
+toc: true
+toc-depth: 2
+toc-location: right
+toc-expand: true
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+code-annotations: select
+---
+
+# Recap: Types of vectors
+
+To understand how text data is handled in R, it's important to remember some R programming basics:
+
+#### Terminology
+
+- **vector**: a sequence of values
+- **element**/**value**: a single value in a vector
+
+```{r}
+#| eval: false
+# creating a numeric vector called "vec"
+vec <- c(1, 2, 3)
+val <- vec[1]
+```
+
+#### Vector Types in R
+
+In R, there are four main types of vectors: 
+
+1. `logical` for "boolean" (true/false) values
+2. `integer` for whole numbers (e.g., ... -99, ... -1, 0, 1, 2, ...) 
+3. `double` for real-valued numbers (e.g., 1.3)
+4. **`character`** for representing **text**
+
+Each type has its own characteristics and is used for different purposes.
+
+
+#### `NA` values
+
+::: {.callout-note icon=false}
+`NA` is the special value used in R to represent missing or undefined values
+:::
+
+
+There are special `NA` values for each vector type:
+
+1. logical &rarr; `NA`
+2. integer &rarr; `NA_integer_`
+3. double &rarr; `NA_real_` (don't ask me why it's not `NA_double_` 😅)
+4. **character** &rarr; **`NA_character_`**
+
+```{r}
+typeof(NA)
+typeof(as.character(NA))
+typeof(NA_character_)
+```
+
+
+# Basic R functions for text wrangling
+
+::: {.callout-note icon=false}
+**Text wrangling** is a term  I use for referring to anything I do with a computer to process textual data.
+:::
+
+
+We'll look at **three groups** of text wrangling functions:
+
+1. Functions for *creating* character vectors
+2. Functions for *manipulating* ("changing") character vectors
+3. Functions for *analyzing* character vectors
+
+## Functions for _creating_ character vectors
+
+### c()
+
+`c()` combines values into a vector
+
+#### Example
+
+```{r}
+x <- c("Hello", "World")
+x
+```
+
+
+### rep()
+
+`rep()` replicates values in a vector
+
+#### Arguments
+
+- `x`: Value to be replicated
+- `times`: Number of times to replicate the value
+- `each`: Number of times to repeat each value
+
+#### Examples
+
+```{r}
+x <- rep("Hello", times = 3)
+x
+```
+
+```{r}
+rep(c("Hello", "World"), each = 2)
+rep(c("Hello", "World"), times = 2)
+```
+
+
+### paste()
+
+`paste()` combines or concatenates several character values into a single character value
+
+#### Arguments
+
+- `...`: Character vectors to be combined
+- `sep`: Separator between the values (default: " ")
+- `collapse`: Separator between the combined values (default: NULL)
+
+#### Example
+
+```{r}
+x <- c("a", "b", "c")
+y <- c("1", "2", "3")
+paste(x, y, sep = ":")
+```
+
+
+```{r}
+x <- c("a", "b", "c")
+paste(x, collapse = ", ")
+```
+
+
+
+### sprintf()
+
+`sprintf()` formats character values according to a specified format
+
+#### Arguments
+
+- `fmt`: Format string
+- `...`: Values to be formatted
+
+#### Example
+
+```{r}
+sprintf(fmt = "Hello, %s! My name is %s", "friends", "Hauke")
+```
+
+*Note:* we use `%s` as a placeholder to insert a character value
+
+
+#### Formatting options
+
+the most important formatting options (a.k.a "placeholders") are:
+
+- `%s` for inserting a character value
+- `%d` for inserting an integer value
+- `%f` for inserting a double value
+
+See <https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sprintf> for more options
+
+#### Example
+
+`sprintf()` is great for creating identifiers (IDs):
+
+```{r}
+df <- data.frame(
+  document_number = c(1, 1, 2, 2),
+  paragraph_number = c(1, 2, 1, 2)
+)
+df$paragraph_id <- sprintf("d%02d_p%02d", df$document_number, df$paragraph_number)
+df
+```
+
+*Note:* `%02d` is a placeholder for a two-digit integer with leading zeros
+
+```{r}
+sprintf("%02d", 8:12)
+sprintf("%03d", c(1, 10, 100))
+```
+
+
+## Functions for _analyzing_ character vectors
+
+### nchar()
+
+`nchar()` counts the number of characters in a character value
+
+#### Arguments
+
+- `x`: Character vector
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+nchar(x)
+```
+
+### grepl()
+
+`grepl()` tests if a pattern is present in a character vector
+
+#### Arguments
+
+- `pattern`: Pattern to be matched
+- `x`: Character vector
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+grepl("Hello", x)
+grepl("banana", x)
+grepl("hello", x, ignore.case = TRUE)
+```
+
+*Note:* be careful with `NA` values:
+
+```{r}
+grepl(pattern = "Hello", x = NA)
+grepl(pattern = NA, x = "Hello")
+```
+
+
+### grep()
+
+`grep()` returns the indices of the values in a character vector that contain a pattern
+
+#### Arguments
+
+- `pattern`: Pattern to be matched
+- `x`: Character vector
+- `value`: Logical value (`TRUE`/`FALSE`) indicating whether to return the values instead of the indices
+
+#### Example
+
+```{r}
+
+x <- c("apple", "banana", "cherry")
+grep("a", x)
+grep("a", x, value = TRUE)
+```
+
+
+## Functions for _manipulating_ character vectors
+
+### `trimws`
+
+`trimws()` removes leading and trailing white space from a character value
+
+#### Arguments
+
+- `x`: Character vector
+
+#### Example
+
+```{r}
+x <- "  Hello, World!  "
+trimws(x)
+```
+
+
+### `tolower()` and `toupper()`
+
+`tolower()` and `toupper()` convert text to lowercase and uppercase, respectively
+
+#### Arguments
+
+- `x`: Character vector
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+tolower(x)
+toupper(x)
+```
+
+
+### `substr()`
+
+`substr()` extracts a substring from a character value
+
+#### Arguments
+
+- `x`: Character vector
+- `start`: Starting position of the substring
+- `stop`: Ending position of the substring
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+substr(x, start = 1, stop = 5)
+```
+
+
+### `sub` and `gsub`
+
+- `sub()` replaces the first occurrence of a pattern in a character value
+- `gsub()` replaces all occurrences of a pattern in a character value
+
+#### Arguments
+
+- `pattern`: Pattern to be replaced
+- `replacement`: Replacement value
+- `x`: Character vector
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+sub(pattern = "World", replacement = "Universe", x)
+gsub(pattern = "o", replacement = "🤗", x)
+```
+
+
+### strsplit
+
+`strsplit()` splits a character value into substrings based on a specified delimiter
+
+#### Arguments
+
+- `x`: Character vector
+- `split`: Delimiter to split the character value
+
+#### Example
+
+```{r}
+x <- "Hello, World!"
+strsplit(x, split = ", ")
+```
+
+**_Important:_** `strsplit()` returns a **list** of character vectors
+
+
+---
+
+# `stringr`
+
+## The `stringr` package
+
+- The `stringr` package provides a set of functions for working with character vectors
+- The functions in `stringr` are designed to be more consistent and easier to use than the base R functions
+
+#### How to
+
+```{r}
+library(stringr)
+```
+
+*Note:* `stringr` is part of the "tidyverse" and is loaded automatically when you load the `tidyverse` package
+
+
+## `stringr` equivalents to base R functions
+
+- `str_c()` is equivalent to `paste()`
+- `str_length()` is equivalent to `nchar()`
+- `str_to_lower()` and `str_to_upper()` are equivalent to `tolower()` and `toupper()`
+- `str_sub()` is equivalent to `substr()`
+- `str_replace()` and `str_replace_all()` are equivalent to `sub()` and `gsub()`
+- `str_split()` is equivalent to `strsplit()`
+- `str_detect()` is equivalent to `grepl()`
+- `str_locate()` is equivalent to `grep()`
+
+
+**Practical advantage:** `stringr` functions are defined and named more consistently
+
+- the first argument is always the character vector
+- if applicable, the second argument is always the pattern
+- if applicable, the third argument is always the replacement value
+
+#### Examples
+
+```{r}
+str_replace("Hello, World!", pattern = "World", replacement = "Universe")
+# instead of `sub(World, "Universe", "Hello, World!")`
+
+str_detect("Hello, World!", "Hello")
+# instead of `grepl("Hello", "Hello, World!")`
+
+str_locate("Hello, World!", "World")
+# instead of `grep("World", "Hello, World!")`
+```
+
+
+## Other useful stringr functions
+
+- `str_trim()`: removes leading and trailing whitespace
+- `str_pad()`: pads a string with spaces
+- `str_wrap()`: wraps a string to a specified width
+- `str_sort()`: sorts a character vector
+- `str_order()`: returns the order of a character vector
+- `str_replace_na()`: replaces `NA` values with a specified value
+- `str_extract()`: extracts a pattern from a character vector
+

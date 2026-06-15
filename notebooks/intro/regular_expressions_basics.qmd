@@ -1,0 +1,336 @@
+---
+title: "R Regular Expressions (regex) Basics"
+author: Hauke Licht
+institute: University of Innsbruck
+date: last-modified
+date-format: "MMMM D, YYYY"
+toc: true
+toc-depth: 2
+toc-location: right
+toc-expand: true
+execute:
+  echo: true
+  eval: true
+  message: false
+  warning: false
+code-annotations: select
+---
+
+# Regular expressions 
+
+`regex` := regular expressions
+
+- powerful tools for working with text data
+- allow to describe and identify patterns in text through **abstraction** 
+- makes pattern searching, replacing, and parsing much easier
+
+### What are regex and why do we need them
+
+- **Definition**: Regular expressions (short **regex**) are specialized symbols and operators that define a search pattern.
+- **Utility**: Useful for string searching and manipulation tasks in programming.
+- **Applications**: Validating text input, searching in documents, and transforming text data.
+
+---
+
+# Basics
+
+## The Placeholder `.`
+
+The dot `.` matches any single character except newline characters.
+
+#### Example
+
+the regex pattern "a.c", `.` will match any pattern that start with 'a', ends with 'c', and has an abritrary character in between
+
+```{r}
+text <- c("abc", "adc", "a?c", "a_c", "aӜc", "ac")
+grepl("a.c", text)
+```
+
+
+## Special Symbols
+
+Special symbols in regex help to match specific types of characters like digits, words, or spaces.
+
+### Word Character `\\w`
+
+- `\\w` represents any word character which includes letters, digits, and the underscore
+
+#### Example
+
+```{r}
+library(stringr)
+text <- "Hello world 123!"
+str_extract_all(text, "\\w+")
+```
+
+
+### Digit `\\d`
+
+`\\d` represents any digit from 0 to 9
+
+#### Example
+
+```{r}
+text <- "In 2023, we 1½ million Euros."
+str_extract_all(text, "\\d+")
+```
+
+
+### Space `\\s` and Variants
+
+`\\s` is Geared towards identifying different types of spaces in text.
+
+#### Example 
+
+```{r}
+text <- "In 2023, we 1½ million     Euros."
+str_extract_all(text, "\\s+")
+```
+
+
+### Horizontal Space `\\h`
+
+`\\h` represents**: Any horizontal whitespace like regular spaces or tab characters.
+
+#### Example 
+
+```{r}
+text <- "Some text	with a tab."
+str_extract_all(text, "\\h+")
+```
+
+::: {.callout-note icon=false}
+`\t` is the [tab](https://en.wikipedia.org/wiki/Tab_key) character. 
+In text, it's typically displayed as multiple white spaces, e.g. 
+
+```
+  text <- "Some text	with a tab."
+                    ^^^^- tab character shown as 4 white spaces
+```
+
+:::
+
+### Vertical Space `\\v`
+
+`\\v` represents any vertical white spaces like line breaks.
+
+#### Example
+
+```{r}
+text <- "Line one
+Line two
+"
+str_extract_all(text, "\\v+")
+```
+
+::: {.callout-note icon=false}
+`\n` is the new line character.
+:::
+
+
+## Repetition Quantifiers
+
+**Repetition quantifiers** specify how many times elements can repeat in sequence
+
+### Zero times or more: `*`
+
+Matches 0 or more repetitions.
+
+#### Example
+
+`"lo*"` matches any 'l' followed by zero or more 'o's.
+
+```{r}
+text <- "hellooo"
+str_extract_all(text, "lo*")
+```
+
+
+### Zero or one time: `?`
+
+#### Example
+
+`"lo?"` matches any 'l' followed by none or one 'o'.
+
+```{r}
+text <- "hellooo"
+str_extract_all(text, "lo?")
+```
+
+
+### One time or more: `+`
+
+`+` matches one or more repetitions.
+
+#### Example
+
+`"lo+"` matches 'l' followed by one or more 'o's.
+
+```{r}
+text <- "hellooo"
+str_extract_all(text, "lo+")
+```
+
+
+### Between min and max times: `{min,max}`
+
+`{min,max}` matches between a minimum and maximum number of occurrences.
+
+#### Example
+
+`"lo{1,2}`" matches 'l' folloewd by between 1 and 2 'o's
+
+```{r}
+text <- "hellooo"
+str_extract_all(text, "lo{1,2}")
+```
+
+<br>
+
+::: {.callout-note icon=false}
+`{0,1}` is equivalent to using `?`
+:::
+
+
+## Defining Character Sets and Ranges with `[]`
+
+`[]` Allows you to match specific sets or ranges of characters
+
+**just list all characters or regex operators that should be matched:**
+
+
+```{r}
+text <- "Match1234!"
+str_extract_all(text, "[M012!]+")
+```
+
+::: {.callout-note icon=false}
+the set can also include special regex operators:
+
+```{r}
+text <- "Match1234!"
+str_extract_all(text, "[\\w\\d]+")
+```
+
+:::
+
+
+**or use `-` to define ranges:**
+
+- **Numbers**: `[0-9]` matches any digit.
+- **Lower case letters**: `[a-z]` matches any lower case letter.
+- **Upper case letters**: `[A-Z]` matches any upper case letter.
+
+```{r}
+text <- "Match1234!"
+str_extract_all(text, "[a-zA-Z0-9]+")
+```
+
+
+::: {.callout-note icon=false}
+Because `-` has the function of defining ranges, you need to _include it **last**_ in a set when you want to match it literally
+
+```{r}
+text <- "Match-1234!"
+str_extract_all(text, "[a-z-]+")
+```
+
+:::
+
+
+
+## Pre-defined Character Sets
+
+`[]` is also used to refer to special **pre-defined character sets**:
+
+- **Alpha characters**: `[[:alpha:]]` matches all alphabetic characters.
+- **Alphanumeric**: `[[:alnum:]]` matches all alphanumeric (digits and letters).
+
+```{r}
+text <- "Run3Forest, Run!"
+str_extract_all(text, "[[:alpha:]]+")
+str_extract_all(text, "[[:alnum:]]+")
+```
+
+::: {.callout-note icon=false}
+
+Special sets can be used inside more complex sets
+
+```{r}
+text <- "Run3Forest, Run!"
+str_extract_all(text, "[[:alpha:] ,]+")
+```
+
+:::
+
+
+## Negating Character Sets and Ranges inside `[]`
+
+If you put an `^` at the first position inside the brackets `[]`, it negates the set
+
+```{r}
+text <- "Match1234!"
+str_extract_all(text, "[^a-zA-Z0-9]+")
+```
+
+```{r}
+text <- "Run3Forest, Run!"
+str_extract_all(text, "[^[:alpha:]]+")
+str_extract_all(text, "[^[:alnum:]]+")
+```
+
+## Anchors: `^` and `$`
+
+Anchor symbols match the beginning `^` and end `$` of a line.
+
+
+- `"^M"` matches lines starting with 'M'
+- `"ing$"` matches lines ending with 'ing'
+
+```{r}
+text <- c("Morning", "Evening")
+grepl("^M", text)
+grepl("ing$", text)
+```
+
+::: {.callout-note icon=false}
+
+- `^` and `$` can be used together to match whole lines
+- remember from the previous slides that `^` used inside `[...]` has a different function (it negates the set)
+
+:::
+
+## Grouping with `(...)`
+
+`(` and `)` enable logical grouping of part of a pattern and can be used together with quantifiers
+
+```{r}
+text <- c("banana", "ananas", "Shalalalala")
+str_extract_all(text, "(na)+")
+```
+
+::: {.callout-important icon=false}
+
+Because `(` and `)` are used as special symbols, they need to be escaped with `\\` when used as literal characters.
+
+```{r}
+text <- "+49 (0) 176 1234 56 78"
+str_extract_all(text, "\\(0\\).+")
+```
+
+:::
+
+## Using `|` for Combining Patterns ("Alternation")
+
+The `|` character ("pipe") acts as an OR operator.
+
+For example, `"cat|dog"` matches 'cat' or 'dog':
+
+```{r}
+text <- "cats and dogs"
+str_extract_all(text, "(cat|dog)")
+```
+
+
+
